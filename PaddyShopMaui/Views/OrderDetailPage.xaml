@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PaddyShop.ViewModels"
+             xmlns:models="clr-namespace:PaddyShop.Models"
+             x:Class="PaddyShop.Views.OrderDetailPage"
+             x:DataType="vm:OrderDetailViewModel"
+             Title="Chi tiết đơn hàng">
+
+    <Grid RowDefinitions="*,Auto">
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" VerticalOptions="Center" />
+        <VerticalStackLayout IsVisible="{Binding HasError}" VerticalOptions="Center" Padding="24" Spacing="12">
+            <Label Text="{Binding ErrorMessage}" HorizontalTextAlignment="Center" />
+            <Button Text="Thử lại" Command="{Binding LoadCommand}" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <ScrollView IsVisible="{Binding HasOrder}">
+            <VerticalStackLayout Padding="12" Spacing="10">
+                <!-- Trạng thái -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="{Binding Order.TitleText}" FontAttributes="Bold" FontSize="16" VerticalOptions="Center" />
+                            <Border Grid.Column="1" BackgroundColor="{Binding Order.StatusColor}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="10,4">
+                                <Label Text="{Binding Order.StatusText}" TextColor="White" FontSize="13" />
+                            </Border>
+                        </Grid>
+                        <Label Text="{Binding Order.OrderDateText}" Style="{StaticResource Muted}" />
+                        <Label Text="{Binding Order.DeliveryDateText}" Style="{StaticResource Muted}" IsVisible="{Binding Order.IsDelivered}" />
+                        <Label Text="{Binding Order.HandledByText}" Style="{StaticResource Muted}" />
+                        <Label Text="Thanh toán: Khi nhận hàng (COD)" Style="{StaticResource Muted}" />
+                        <Border IsVisible="{Binding Order.HasCancelReason}" BackgroundColor="{StaticResource PrimaryLight}" StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8" Padding="10,6" Margin="0,4,0,0">
+                            <Label Text="{Binding Order.CancelReason, StringFormat='Lý do hủy: {0}'}" TextColor="{StaticResource Primary}" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Người nhận -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="📍 Thông tin nhận hàng" FontAttributes="Bold" />
+                        <Label Text="{Binding Order.Shipping.NamePhone}" />
+                        <Label Text="{Binding Order.Shipping.FullAddress}" />
+                        <Label Text="{Binding Order.Note, StringFormat='Ghi chú: {0}'}" IsVisible="{Binding Order.HasNote}" Style="{StaticResource Muted}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Sản phẩm -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="🚚 Sản phẩm" FontAttributes="Bold" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Order.Items}" Spacing="8">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:OrderItem">
+                                    <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="8">
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:OrderDetailViewModel}}, Path=OpenItemCommand}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Grid.GestureRecognizers>
+                                        <Image Source="{Binding ImageUrl}" HeightRequest="56" WidthRequest="56" Aspect="AspectFit" />
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                            <Label Text="{Binding ProductName}" MaxLines="2" LineBreakMode="TailTruncation" />
+                                            <Label Text="{Binding UnitLine}" Style="{StaticResource Muted}" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2" Text="{Binding LineTotalText}" FontAttributes="Bold" VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <BoxView HeightRequest="1" Color="{StaticResource Gray200}" />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="TỔNG SỐ TIỀN" FontAttributes="Bold" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="{Binding Order.TotalText}" Style="{StaticResource Price}" FontSize="20" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Khách chỉ hủy được đơn chưa xác nhận -->
+        <Border Grid.Row="1" IsVisible="{Binding Order.CanCancel}" BackgroundColor="White" StrokeThickness="0" Padding="16,10">
+            <Button Text="Hủy đơn hàng" Style="{StaticResource OutlineButton}" Command="{Binding CancelOrderCommand}" />
+        </Border>
+    </Grid>
+</ContentPage>

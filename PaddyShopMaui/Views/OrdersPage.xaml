@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PaddyShop.ViewModels"
+             xmlns:models="clr-namespace:PaddyShop.Models"
+             x:Class="PaddyShop.Views.OrdersPage"
+             x:DataType="vm:OrdersViewModel"
+             Title="Đơn hàng của tôi">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Chưa đăng nhập -->
+        <VerticalStackLayout Grid.RowSpan="2" IsVisible="{Binding Session.IsGuest}" VerticalOptions="Center" Padding="24" Spacing="12">
+            <Label Text="🧾" FontSize="56" HorizontalTextAlignment="Center" />
+            <Label Text="Vui lòng đăng nhập để xem đơn hàng" HorizontalTextAlignment="Center" Style="{StaticResource Muted}" FontSize="15" />
+            <Button Text="Đăng nhập" Command="{Binding GoLoginCommand}" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <!-- Lọc theo tình trạng -->
+        <CollectionView IsVisible="{Binding Session.IsLoggedIn}" ItemsSource="{Binding StatusFilters}" ItemsLayout="HorizontalList"
+                        HeightRequest="52" BackgroundColor="White">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:SelectableItem">
+                    <Border Style="{StaticResource Chip}" BackgroundColor="{Binding ChipBackground}" Margin="8,8,0,8">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:OrdersViewModel}}, Path=SelectStatusCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="{Binding Name}" TextColor="{Binding ChipText}" FontSize="13" VerticalOptions="Center" />
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <RefreshView Grid.Row="1" IsVisible="{Binding Session.IsLoggedIn}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding ReloadCommand}">
+            <CollectionView ItemsSource="{Binding Orders}" RemainingItemsThreshold="3"
+                            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}" Margin="12,4">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Order">
+                        <Border Style="{StaticResource Card}" Margin="0,4">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:OrdersViewModel}}, Path=OpenOrderCommand}"
+                                                      CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="64,*" ColumnSpacing="10" RowDefinitions="Auto,Auto">
+                                <Grid Grid.ColumnSpan="2" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
+                                    <Label Text="{Binding TitleText}" FontAttributes="Bold" VerticalOptions="Center" />
+                                    <Border Grid.Column="1" BackgroundColor="{Binding StatusColor}" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="8,3">
+                                        <Label Text="{Binding StatusText}" TextColor="White" FontSize="12" />
+                                    </Border>
+                                </Grid>
+                                <Image Grid.Row="1" Source="{Binding FirstImageUrl}" HeightRequest="64" WidthRequest="64" Aspect="AspectFit" />
+                                <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding OrderDateText}" Style="{StaticResource Muted}" />
+                                    <Label Text="{Binding ItemCountText}" Style="{StaticResource Muted}" />
+                                    <Label Text="{Binding TotalText}" Style="{StaticResource Price}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24,60" Spacing="10">
+                        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+                        <Label Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" HorizontalTextAlignment="Center" />
+                        <Button Text="Thử lại" Command="{Binding ReloadCommand}" IsVisible="{Binding HasError}" HorizontalOptions="Center" />
+                        <Label Text="Chưa có đơn hàng nào" IsVisible="{Binding IsEmpty}" HorizontalTextAlignment="Center" Style="{StaticResource Muted}" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

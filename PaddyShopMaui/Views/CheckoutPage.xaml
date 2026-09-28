@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PaddyShop.ViewModels"
+             xmlns:models="clr-namespace:PaddyShop.Models"
+             x:Class="PaddyShop.Views.CheckoutPage"
+             x:DataType="vm:CheckoutViewModel"
+             Title="Thông tin đơn đặt hàng">
+
+    <Grid RowDefinitions="*,Auto">
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" VerticalOptions="Center" />
+        <VerticalStackLayout IsVisible="{Binding HasError}" VerticalOptions="Center" Padding="24" Spacing="12">
+            <Label Text="{Binding ErrorMessage}" HorizontalTextAlignment="Center" />
+            <Button Text="Thử lại" Command="{Binding LoadCommand}" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <ScrollView IsVisible="{Binding HasItems}">
+            <VerticalStackLayout Padding="12" Spacing="10">
+                <!-- Người nhận -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="📍 Thông tin nhận hàng" FontAttributes="Bold" VerticalOptions="Center" />
+                            <Button Grid.Column="1" Text="Sửa" Style="{StaticResource TextButton}" Command="{Binding EditProfileCommand}" />
+                        </Grid>
+                        <Label Text="{Binding Session.Customer.NamePhone}" FontAttributes="Bold" />
+                        <Label Text="{Binding Session.Customer.Email}" Style="{StaticResource Muted}" />
+                        <Label Text="{Binding Session.Customer.FullAddress}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Thanh toán -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="💵 Phương thức thanh toán" FontAttributes="Bold" />
+                        <Label Text="Thanh toán khi nhận hàng (COD)" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Sản phẩm -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="🚚 Sản phẩm" FontAttributes="Bold" />
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Items}" Spacing="8">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:CartItem">
+                                    <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="8">
+                                        <Image Source="{Binding Product.ImageUrl}" HeightRequest="56" WidthRequest="56" Aspect="AspectFit" />
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                            <Label Text="{Binding Product.Name}" MaxLines="2" LineBreakMode="TailTruncation" />
+                                            <Label Text="{Binding UnitLine}" Style="{StaticResource Muted}" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2" Text="{Binding LineTotalText}" FontAttributes="Bold" VerticalOptions="Center" />
+                                    </Grid>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                        <BoxView HeightRequest="1" Color="{StaticResource Gray200}" />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Tạm tính" Style="{StaticResource Muted}" />
+                            <Label Grid.Column="1" Text="{Binding Cart.SubtotalText}" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding Cart.HasDiscount}">
+                            <Label Text="Giảm giá" Style="{StaticResource Muted}" />
+                            <Label Grid.Column="1" Text="{Binding Cart.DiscountText}" TextColor="{StaticResource Green}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Ghi chú -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="📝 Ghi chú cho cửa hàng" FontAttributes="Bold" />
+                        <Editor Text="{Binding Note}" Placeholder="Vd: Giao giờ hành chính, gọi trước khi giao..." AutoSize="TextChanges"
+                                MaxLength="255" MinimumHeightRequest="70" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Đơn hàng sẽ ở trạng thái &quot;Chưa xác nhận&quot; cho tới khi nhân viên cửa hàng xác nhận. Bạn có thể tự hủy đơn trước khi cửa hàng xác nhận."
+                       Style="{StaticResource Muted}" Margin="4,0" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Border Grid.Row="1" IsVisible="{Binding HasItems}" BackgroundColor="White" StrokeThickness="0" Padding="16,12">
+            <Border.Shadow><Shadow Brush="Black" Opacity="0.12" Radius="10" Offset="0,-2" /></Border.Shadow>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <VerticalStackLayout VerticalOptions="Center">
+                    <Label Text="Tổng thanh toán" Style="{StaticResource Muted}" />
+                    <Label Text="{Binding Cart.TotalText}" Style="{StaticResource Price}" FontSize="20" />
+                </VerticalStackLayout>
+                <Grid Grid.Column="1">
+                    <Button Text="Xác nhận đặt hàng" Command="{Binding PlaceOrderCommand}"
+                            IsEnabled="{Binding IsPlacing, Converter={StaticResource Not}}" />
+                    <ActivityIndicator IsRunning="{Binding IsPlacing}" IsVisible="{Binding IsPlacing}" Color="White" HeightRequest="24" />
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentPage>

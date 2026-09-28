@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PaddyShop.ViewModels"
+             xmlns:models="clr-namespace:PaddyShop.Models"
+             x:Class="PaddyShop.Views.CartPage"
+             x:DataType="vm:CartViewModel"
+             Title="Giỏ hàng của bạn">
+
+    <Grid RowDefinitions="*,Auto">
+        <!-- Chưa đăng nhập -->
+        <VerticalStackLayout IsVisible="{Binding Session.IsGuest}" VerticalOptions="Center" Padding="24" Spacing="12">
+            <Label Text="🛒" FontSize="56" HorizontalTextAlignment="Center" />
+            <Label Text="Vui lòng đăng nhập để xem giỏ hàng" HorizontalTextAlignment="Center" Style="{StaticResource Muted}" FontSize="15" />
+            <Button Text="Đăng nhập" Command="{Binding GoLoginCommand}" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <Grid IsVisible="{Binding Session.IsLoggedIn}">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" VerticalOptions="Center" />
+            <VerticalStackLayout IsVisible="{Binding HasError}" VerticalOptions="Center" Padding="24" Spacing="12">
+                <Label Text="{Binding ErrorMessage}" HorizontalTextAlignment="Center" />
+                <Button Text="Thử lại" Command="{Binding LoadCommand}" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+            <VerticalStackLayout IsVisible="{Binding IsEmpty}" VerticalOptions="Center" Padding="24" Spacing="12">
+                <Label Text="🧺" FontSize="56" HorizontalTextAlignment="Center" />
+                <Label Text="Giỏ hàng trống" HorizontalTextAlignment="Center" Style="{StaticResource Muted}" FontSize="15" />
+                <Button Text="Tiếp tục mua sắm" Command="{Binding ShopCommand}" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <RefreshView IsVisible="{Binding HasItems}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}">
+                <CollectionView ItemsSource="{Binding Items}" Margin="12,8">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:CartItem">
+                            <Border Style="{StaticResource Card}" Margin="0,4" Padding="10">
+                                <Grid ColumnDefinitions="84,*,Auto" ColumnSpacing="10">
+                                    <Image Source="{Binding Product.ImageUrl}" HeightRequest="84" WidthRequest="84" Aspect="AspectFit">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, Path=OpenItemCommand}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Image.GestureRecognizers>
+                                    </Image>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding Product.Name}" FontAttributes="Bold" MaxLines="2" LineBreakMode="TailTruncation" />
+                                        <Label Text="{Binding Product.BrandName}" TextColor="{StaticResource Blue}" FontSize="12" />
+                                        <HorizontalStackLayout Spacing="6">
+                                            <Label Text="{Binding Product.FinalPriceText}" Style="{StaticResource Price}" FontSize="14" />
+                                            <Label Text="{Binding Product.PriceText}" Style="{StaticResource OldPrice}" IsVisible="{Binding Product.HasDiscount}"
+                                                   VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+                                        <Grid ColumnDefinitions="Auto,*" Margin="0,4,0,0">
+                                            <HorizontalStackLayout Spacing="4">
+                                                <Button Text="−" Style="{StaticResource RoundButton}" WidthRequest="30" HeightRequest="30" CornerRadius="15"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, Path=DecreaseCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                                <Label Text="{Binding Quantity}" FontAttributes="Bold" WidthRequest="30" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                                <Button Text="+" Style="{StaticResource RoundButton}" WidthRequest="30" HeightRequest="30" CornerRadius="15"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, Path=IncreaseCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                            </HorizontalStackLayout>
+                                            <Label Grid.Column="1" Text="{Binding LineTotalText}" FontAttributes="Bold" HorizontalOptions="End" VerticalOptions="Center" />
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="2" Text="✕" BackgroundColor="Transparent" TextColor="{StaticResource Gray500}" FontSize="16"
+                                            WidthRequest="36" HeightRequest="36" Padding="0" VerticalOptions="Start"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, Path=RemoveCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+        </Grid>
+
+        <!-- Tổng tiền -->
+        <Border Grid.Row="1" IsVisible="{Binding HasItems}" BackgroundColor="White" StrokeThickness="0" Padding="16,12">
+            <Border.Shadow><Shadow Brush="Black" Opacity="0.12" Radius="10" Offset="0,-2" /></Border.Shadow>
+            <VerticalStackLayout Spacing="4">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="{Binding Cart.SubtotalLabel}" Style="{StaticResource Muted}" />
+                    <Label Grid.Column="1" Text="{Binding Cart.SubtotalText}" />
+                </Grid>
+                <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding Cart.HasDiscount}">
+                    <Label Text="Giảm giá" Style="{StaticResource Muted}" />
+                    <Label Grid.Column="1" Text="{Binding Cart.DiscountText}" TextColor="{StaticResource Green}" />
+                </Grid>
+                <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                    <Label Text="TỔNG SỐ TIỀN" FontAttributes="Bold" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="{Binding Cart.TotalText}" Style="{StaticResource Price}" FontSize="20" />
+                </Grid>
+                <Button Text="Đặt hàng" Command="{Binding CheckoutCommand}" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

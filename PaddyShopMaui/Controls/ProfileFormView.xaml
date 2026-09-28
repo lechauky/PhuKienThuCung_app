@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Form thông tin khách hàng dùng chung cho Đăng ký và Sửa thông tin. BindingContext = ProfileFormViewModel -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PaddyShop.ViewModels"
+             x:Class="PaddyShop.Controls.ProfileFormView"
+             x:DataType="vm:ProfileFormViewModel">
+    <VerticalStackLayout Spacing="2">
+        <Grid ColumnDefinitions="3*,2*" ColumnSpacing="10">
+            <VerticalStackLayout>
+                <Label Text="Họ" Style="{StaticResource FieldLabel}" />
+                <Border Style="{StaticResource InputBox}">
+                    <Entry Text="{Binding LastName}" Placeholder="Nguyễn Văn" MaxLength="50" />
+                </Border>
+            </VerticalStackLayout>
+            <VerticalStackLayout Grid.Column="1">
+                <Label Text="Tên" Style="{StaticResource FieldLabel}" />
+                <Border Style="{StaticResource InputBox}">
+                    <Entry Text="{Binding FirstName}" Placeholder="An" MaxLength="10" />
+                </Border>
+            </VerticalStackLayout>
+        </Grid>
+
+        <Label Text="Số điện thoại" Style="{StaticResource FieldLabel}" />
+        <Border Style="{StaticResource InputBox}">
+            <Entry Text="{Binding Phone}" Placeholder="0901234567" Keyboard="Telephone" MaxLength="10" />
+        </Border>
+
+        <Label Text="Email" Style="{StaticResource FieldLabel}" />
+        <Border Style="{StaticResource InputBox}">
+            <Entry Text="{Binding Email}" Placeholder="ban@email.com" Keyboard="Email" />
+        </Border>
+
+        <Label Text="Ngày sinh" Style="{StaticResource FieldLabel}" />
+        <Border Style="{StaticResource InputBox}">
+            <DatePicker Date="{Binding Birthday}" MinimumDate="{Binding MinBirthday}" MaximumDate="{Binding MaxBirthday}" Format="dd/MM/yyyy" />
+        </Border>
+
+        <Grid ColumnDefinitions="*,Auto">
+            <Label Text="Địa chỉ" Style="{StaticResource FieldLabel}" />
+            <ActivityIndicator Grid.Column="1" IsRunning="{Binding IsLoadingPlaces}" IsVisible="{Binding IsLoadingPlaces}" HeightRequest="18" WidthRequest="18" />
+        </Grid>
+        <Border Style="{StaticResource InputBox}" Margin="0,0,0,6">
+            <Picker Title="Chọn Tỉnh / Thành phố" ItemsSource="{Binding Provinces}"
+                    SelectedItem="{Binding SelectedProvince}" />
+        </Border>
+        <Border Style="{StaticResource InputBox}" Margin="0,0,0,6">
+            <Picker Title="Chọn Quận / Huyện" ItemsSource="{Binding Districts}"
+                    SelectedItem="{Binding SelectedDistrict}" />
+        </Border>
+        <Border Style="{StaticResource InputBox}" Margin="0,0,0,6">
+            <Picker Title="Chọn Phường / Xã" ItemsSource="{Binding Wards}"
+                    SelectedItem="{Binding SelectedWard}" />
+        </Border>
+        <Border Style="{StaticResource InputBox}">
+            <Entry Text="{Binding Street}" Placeholder="Số nhà, tên đường" />
+        </Border>
+    </VerticalStackLayout>
+</ContentView>

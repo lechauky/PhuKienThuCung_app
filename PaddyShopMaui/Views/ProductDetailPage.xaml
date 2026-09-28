@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PaddyShop.ViewModels"
+             xmlns:models="clr-namespace:PaddyShop.Models"
+             xmlns:controls="clr-namespace:PaddyShop.Controls"
+             x:Class="PaddyShop.Views.ProductDetailPage"
+             x:DataType="vm:ProductDetailViewModel"
+             Title="Chi tiết sản phẩm">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="{Binding Session.CartBadge, StringFormat='🛒 {0}'}" Command="{Binding OpenCartCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="*,Auto">
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" VerticalOptions="Center" />
+        <VerticalStackLayout IsVisible="{Binding HasError}" VerticalOptions="Center" Padding="24" Spacing="12">
+            <Label Text="{Binding ErrorMessage}" HorizontalTextAlignment="Center" />
+            <Button Text="Thử lại" Command="{Binding LoadCommand}" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <ScrollView IsVisible="{Binding HasProduct}">
+            <VerticalStackLayout Spacing="8" Padding="0,0,0,16">
+                <!-- Ảnh -->
+                <Grid BackgroundColor="White">
+                    <Image Source="{Binding Product.ImageUrl}" HeightRequest="300" Aspect="AspectFit" Margin="16" />
+                    <Border IsVisible="{Binding Product.HasDiscount}" BackgroundColor="{StaticResource Secondary}" StrokeThickness="0"
+                            StrokeShape="RoundRectangle 0,0,0,10" Padding="10,4" HorizontalOptions="Start" VerticalOptions="Start">
+                        <Label Text="{Binding Product.DiscountLabel}" TextColor="White" FontAttributes="Bold" />
+                    </Border>
+                </Grid>
+
+                <!-- Thông tin -->
+                <VerticalStackLayout BackgroundColor="White" Padding="16" Spacing="6">
+                    <Label Text="{Binding Product.Name}" FontSize="20" FontAttributes="Bold" />
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Thương hiệu: " TextColor="{StaticResource Gray500}" />
+                                <Span Text="{Binding Product.BrandName}" TextColor="{StaticResource Blue}" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Loại: " TextColor="{StaticResource Gray500}" />
+                                <Span Text="{Binding Product.CategoryName}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <HorizontalStackLayout Spacing="10" Margin="0,6,0,0">
+                        <Label Text="{Binding Product.FinalPriceText}" Style="{StaticResource Price}" FontSize="24" VerticalOptions="Center" />
+                        <Label Text="{Binding Product.PriceText}" Style="{StaticResource OldPrice}" FontSize="15"
+                               IsVisible="{Binding Product.HasDiscount}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                        <VerticalStackLayout VerticalOptions="Center">
+                            <Label Text="Số lượng" FontAttributes="Bold" />
+                            <Label Text="{Binding Product.StockText}" Style="{StaticResource Muted}" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" BackgroundColor="{StaticResource Gray100}" StrokeThickness="0" StrokeShape="RoundRectangle 20" Padding="4">
+                            <HorizontalStackLayout Spacing="6">
+                                <Button Text="−" Style="{StaticResource RoundButton}" Command="{Binding DecreaseCommand}" />
+                                <Label Text="{Binding Quantity}" FontSize="16" FontAttributes="Bold" WidthRequest="36"
+                                       HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                <Button Text="+" Style="{StaticResource RoundButton}" Command="{Binding IncreaseCommand}" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- Mô tả -->
+                <VerticalStackLayout BackgroundColor="White" Padding="16" Spacing="6">
+                    <Label Text="Mô tả sản phẩm" Style="{StaticResource SectionTitle}" />
+                    <BoxView HeightRequest="1" Color="{StaticResource Gray200}" />
+                    <Label Text="{Binding Product.DescriptionText}" LineHeight="1.3" />
+                </VerticalStackLayout>
+
+                <!-- Sản phẩm cùng loại -->
+                <Label Text="Sản phẩm cùng loại" Style="{StaticResource SectionTitle}" Margin="16,8,16,0" IsVisible="{Binding HasRelated}" />
+                <CollectionView ItemsSource="{Binding Product.Related}" ItemsLayout="HorizontalList" HeightRequest="280" IsVisible="{Binding HasRelated}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Product">
+                            <controls:ProductCard WidthRequest="160" Margin="8,0,0,0"
+                                                  TapCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductDetailViewModel}}, Path=OpenProductCommand}"
+                                                  AddCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductDetailViewModel}}, Path=AddToCartCommand}" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Thanh nút dưới cùng -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12" Padding="12" BackgroundColor="White" IsVisible="{Binding HasProduct}">
+            <Button Text="Thêm vào giỏ" Style="{StaticResource OutlineButton}" Command="{Binding AddCurrentCommand}"
+                    IsEnabled="{Binding Product.InStock}" />
+            <Button Grid.Column="1" Text="Mua ngay" Command="{Binding BuyNowCommand}" IsEnabled="{Binding Product.InStock}" />
+        </Grid>
+    </Grid>
+</ContentPage>

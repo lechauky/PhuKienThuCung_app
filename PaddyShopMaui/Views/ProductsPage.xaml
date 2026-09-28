@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PaddyShop.ViewModels"
+             xmlns:models="clr-namespace:PaddyShop.Models"
+             xmlns:controls="clr-namespace:PaddyShop.Controls"
+             x:Class="PaddyShop.Views.ProductsPage"
+             x:DataType="vm:ProductsViewModel"
+             Title="Sản phẩm">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+        <!-- Tìm kiếm + nút bộ lọc -->
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" BackgroundColor="{StaticResource Primary}" Padding="12,4,12,10">
+            <Border BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 22" Padding="12,0" HeightRequest="44">
+                <Entry Placeholder="Tìm theo tên, thương hiệu, loại" Text="{Binding SearchText}" ReturnType="Search"
+                       ReturnCommand="{Binding ReloadCommand}" ClearButtonVisibility="WhileEditing" VerticalOptions="Center" />
+            </Border>
+            <Button Grid.Column="1" Text="{Binding FilterButtonText}" Command="{Binding ToggleFilterCommand}"
+                    BackgroundColor="White" TextColor="{StaticResource Primary}" HeightRequest="44" FontSize="14" />
+        </Grid>
+
+        <!-- Bộ lọc -->
+        <ScrollView Grid.Row="1" IsVisible="{Binding IsFilterOpen}" MaximumHeightRequest="440" BackgroundColor="White">
+            <VerticalStackLayout Padding="16,10" Spacing="8">
+                <Label Text="Sắp xếp" FontAttributes="Bold" />
+                <Border Style="{StaticResource InputBox}">
+                    <Picker ItemsSource="{Binding SortOptions}" SelectedIndex="{Binding SortIndex}" Title="Sắp xếp" />
+                </Border>
+
+                <Label Text="Loại sản phẩm" FontAttributes="Bold" />
+                <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding CategoryOptions}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:SelectableItem">
+                            <Border Style="{StaticResource Chip}" BackgroundColor="{Binding ChipBackground}" Margin="0,0,6,6">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductsViewModel}}, Path=ToggleOptionCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="{Binding Name}" TextColor="{Binding ChipText}" FontSize="13" />
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+
+                <Label Text="Thương hiệu" FontAttributes="Bold" />
+                <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding BrandOptions}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:SelectableItem">
+                            <Border Style="{StaticResource Chip}" BackgroundColor="{Binding ChipBackground}" Margin="0,0,6,6">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductsViewModel}}, Path=ToggleOptionCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="{Binding Name}" TextColor="{Binding ChipText}" FontSize="13" />
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </FlexLayout>
+
+                <Label Text="Khoảng giá (đ)" FontAttributes="Bold" />
+                <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="8">
+                    <Border Style="{StaticResource InputBox}">
+                        <Entry Placeholder="Từ" Keyboard="Numeric" Text="{Binding MinPriceText}" />
+                    </Border>
+                    <Label Grid.Column="1" Text="—" VerticalOptions="Center" />
+                    <Border Grid.Column="2" Style="{StaticResource InputBox}">
+                        <Entry Placeholder="Đến" Keyboard="Numeric" Text="{Binding MaxPriceText}" />
+                    </Border>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,8,0,4">
+                    <Button Text="Xóa bộ lọc" Style="{StaticResource OutlineButton}" Command="{Binding ClearFilterCommand}" />
+                    <Button Grid.Column="1" Text="Áp dụng" Command="{Binding ApplyFilterCommand}" />
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Label Grid.Row="2" Text="{Binding ResultText}" Style="{StaticResource Muted}" Margin="14,8,14,0" />
+
+        <!-- Danh sách sản phẩm (lưới 2 cột, cuộn gần cuối sẽ tự tải thêm) -->
+        <RefreshView Grid.Row="3" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Products}" RemainingItemsThreshold="4"
+                            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}" Margin="8,0">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="8" VerticalItemSpacing="4" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Product">
+                        <controls:ProductCard
+                            TapCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductsViewModel}}, Path=OpenProductCommand}"
+                            AddCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductsViewModel}}, Path=AddToCartCommand}" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24,60" Spacing="10">
+                        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+                        <Label Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}" HorizontalTextAlignment="Center" />
+                        <Button Text="Thử lại" Command="{Binding ReloadCommand}" IsVisible="{Binding HasError}" HorizontalOptions="Center" />
+                        <Label Text="Không tìm thấy sản phẩm phù hợp" IsVisible="{Binding IsEmpty}" HorizontalTextAlignment="Center"
+                               Style="{StaticResource Muted}" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.Footer>
+                    <ActivityIndicator IsRunning="{Binding IsLoadingMore}" IsVisible="{Binding IsLoadingMore}" Margin="0,8" />
+                </CollectionView.Footer>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

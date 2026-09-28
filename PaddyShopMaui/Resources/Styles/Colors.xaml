@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <!-- Màu lấy theo website (main.css): đỏ #CC3333, cam #f88c06 -->
+    <Color x:Key="Primary">#CC3333</Color>
+    <Color x:Key="PrimaryDark">#A82828</Color>
+    <Color x:Key="PrimaryLight">#FDECEC</Color>
+    <Color x:Key="Secondary">#F88C06</Color>
+    <Color x:Key="Blue">#0B84EE</Color>
+    <Color x:Key="Green">#2E7D32</Color>
+    <Color x:Key="PageBackground">#F8FAFD</Color>
+    <Color x:Key="Gray100">#F1F1F4</Color>
+    <Color x:Key="Gray200">#E3E3E6</Color>
+    <Color x:Key="Gray500">#888888</Color>
+    <Color x:Key="Gray900">#212121</Color>
+    <Color x:Key="White">#FFFFFF</Color>
+</ResourceDictionary>

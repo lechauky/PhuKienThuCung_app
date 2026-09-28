@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PaddyShop.ViewModels"
+             xmlns:models="clr-namespace:PaddyShop.Models"
+             xmlns:controls="clr-namespace:PaddyShop.Controls"
+             x:Class="PaddyShop.Views.HomePage"
+             x:DataType="vm:HomeViewModel"
+             Shell.NavBarIsVisible="False"
+             Title="Trang chủ">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Đầu trang: logo, giỏ hàng, thông báo, ô tìm kiếm -->
+        <VerticalStackLayout BackgroundColor="{StaticResource Primary}" Padding="16,12" Spacing="10">
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="4">
+                <VerticalStackLayout VerticalOptions="Center">
+                    <Label Text="🐾 Paddy Pet Shop" TextColor="White" FontSize="20" FontAttributes="Bold" />
+                    <Label Text="Phụ kiện &amp; thức ăn thú cưng" TextColor="#E6FFFFFF" FontSize="12" />
+                </VerticalStackLayout>
+                <Grid Grid.Column="1" WidthRequest="46" HeightRequest="46">
+                    <Button Text="🔔" FontSize="20" BackgroundColor="Transparent" Padding="0" Command="{Binding OpenNotificationsCommand}" />
+                    <Border Style="{StaticResource Badge}" IsVisible="{Binding Session.HasUnread}" InputTransparent="True">
+                        <Label Text="{Binding Session.UnreadBadge}" TextColor="White" FontSize="11" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                    </Border>
+                </Grid>
+                <Grid Grid.Column="2" WidthRequest="46" HeightRequest="46">
+                    <Button Text="🛒" FontSize="20" BackgroundColor="Transparent" Padding="0" Command="{Binding OpenCartCommand}" />
+                    <Border Style="{StaticResource Badge}" IsVisible="{Binding Session.HasCartItems}" InputTransparent="True">
+                        <Label Text="{Binding Session.CartBadge}" TextColor="White" FontSize="11" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                    </Border>
+                </Grid>
+            </Grid>
+            <Border BackgroundColor="White" StrokeThickness="0" StrokeShape="RoundRectangle 24" Padding="14,0" HeightRequest="46">
+                <Grid ColumnDefinitions="Auto,*">
+                    <Label Text="🔍" VerticalOptions="Center" />
+                    <Entry Grid.Column="1" Placeholder="Tìm kiếm sản phẩm" Text="{Binding SearchText}" ReturnType="Search"
+                           ReturnCommand="{Binding SearchCommand}" VerticalOptions="Center" Margin="6,0,0,0" />
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- Lỗi tải dữ liệu -->
+        <VerticalStackLayout Grid.Row="1" IsVisible="{Binding HasError}" VerticalOptions="Center" Padding="24" Spacing="12">
+            <Label Text="{Binding ErrorMessage}" HorizontalTextAlignment="Center" />
+            <Button Text="Thử lại" Command="{Binding LoadCommand}" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <ActivityIndicator Grid.Row="1" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" VerticalOptions="Center" />
+
+        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}"
+                     IsVisible="{Binding HasError, Converter={StaticResource Not}}">
+            <ScrollView>
+                <VerticalStackLayout Padding="0,0,0,20" Spacing="6">
+
+                    <!-- Banner (quản lý trong trang admin: menu "Banner app") -->
+                    <Grid IsVisible="{Binding HasBanners}" Padding="16,14,16,0">
+                        <CarouselView x:Name="BannerCarousel" ItemsSource="{Binding Banners}" HeightRequest="150" Loop="True">
+                            <CarouselView.ItemTemplate>
+                                <DataTemplate x:DataType="models:Banner">
+                                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 12">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=OpenBannerCommand}"
+                                                                  CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <Image Source="{Binding ImageUrl}" Aspect="AspectFill" />
+                                    </Border>
+                                </DataTemplate>
+                            </CarouselView.ItemTemplate>
+                        </CarouselView>
+                        <IndicatorView x:Name="BannerIndicator" IndicatorColor="#80FFFFFF" SelectedIndicatorColor="White"
+                                       HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,8" />
+                    </Grid>
+
+                    <!-- Danh mục -->
+                    <Label Text="Danh mục" Style="{StaticResource SectionTitle}" Margin="16,10,16,0" />
+                    <CollectionView ItemsSource="{Binding Categories}" ItemsLayout="HorizontalList" HeightRequest="44">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Category">
+                                <Border Style="{StaticResource Chip}" BackgroundColor="{StaticResource PrimaryLight}" Stroke="{StaticResource Primary}"
+                                        Margin="6,4,0,4">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=OpenCategoryCommand}"
+                                                              CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="{Binding Name}" TextColor="{StaticResource Primary}" FontSize="13" VerticalOptions="Center" />
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- Đang khuyến mãi -->
+                    <Grid ColumnDefinitions="*,Auto" Margin="16,8,8,0" IsVisible="{Binding HasOnSale}">
+                        <Label Text="🔥 Đang khuyến mãi" Style="{StaticResource SectionTitle}" VerticalOptions="Center" />
+                        <Button Grid.Column="1" Text="Xem tất cả" Style="{StaticResource TextButton}" Command="{Binding SeeAllCommand}" />
+                    </Grid>
+                    <CollectionView ItemsSource="{Binding OnSale}" ItemsLayout="HorizontalList" HeightRequest="280" IsVisible="{Binding HasOnSale}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Product">
+                                <controls:ProductCard WidthRequest="160" Margin="8,0,0,0"
+                                                      TapCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=OpenProductCommand}"
+                                                      AddCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=AddToCartCommand}" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- Bán chạy -->
+                    <Grid ColumnDefinitions="*,Auto" Margin="16,8,8,0">
+                        <Label Text="Sản phẩm bán chạy" Style="{StaticResource SectionTitle}" VerticalOptions="Center" />
+                        <Button Grid.Column="1" Text="Xem tất cả" Style="{StaticResource TextButton}" Command="{Binding SeeAllCommand}" />
+                    </Grid>
+                    <CollectionView ItemsSource="{Binding BestSellers}" ItemsLayout="HorizontalList" HeightRequest="280">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Product">
+                                <controls:ProductCard WidthRequest="160" Margin="8,0,0,0"
+                                                      TapCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=OpenProductCommand}"
+                                                      AddCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=AddToCartCommand}" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- Thương hiệu nổi bật -->
+                    <Label Text="Thương hiệu nổi bật" Style="{StaticResource SectionTitle}" Margin="16,8,16,0" />
+                    <CollectionView ItemsSource="{Binding TopBrands}" ItemsLayout="HorizontalList" HeightRequest="100">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Brand">
+                                <Border Style="{StaticResource Card}" Padding="6" WidthRequest="110" Margin="8,4,0,4">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=OpenBrandCommand}"
+                                                              CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <VerticalStackLayout Spacing="4">
+                                        <Image Source="{Binding LogoUrl}" HeightRequest="52" Aspect="AspectFit" />
+                                        <Label Text="{Binding Name}" FontSize="12" HorizontalTextAlignment="Center" LineBreakMode="TailTruncation" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- Sản phẩm mới -->
+                    <Grid ColumnDefinitions="*,Auto" Margin="16,8,8,0">
+                        <Label Text="Sản phẩm mới" Style="{StaticResource SectionTitle}" VerticalOptions="Center" />
+                        <Button Grid.Column="1" Text="Xem tất cả" Style="{StaticResource TextButton}" Command="{Binding SeeAllCommand}" />
+                    </Grid>
+                    <CollectionView ItemsSource="{Binding Newest}" ItemsLayout="HorizontalList" HeightRequest="280">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Product">
+                                <controls:ProductCard WidthRequest="160" Margin="8,0,0,0"
+                                                      TapCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=OpenProductCommand}"
+                                                      AddCommand="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=AddToCartCommand}" />
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

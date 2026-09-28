@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PaddyShop.ViewModels"
+             x:Class="PaddyShop.Views.OrderSuccessPage"
+             x:DataType="vm:OrderSuccessViewModel"
+             Title="Đặt hàng thành công">
+    <VerticalStackLayout VerticalOptions="Center" Padding="28" Spacing="14">
+        <Label Text="✅" FontSize="80" HorizontalTextAlignment="Center" />
+        <Label Text="Đặt hàng thành công!" FontSize="22" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+        <Label Text="{Binding Message}" HorizontalTextAlignment="Center" Style="{StaticResource Muted}" FontSize="15" />
+        <Button Text="Xem đơn hàng" Command="{Binding ViewOrderCommand}" Margin="0,12,0,0" />
+        <Button Text="Tiếp tục mua sắm" Style="{StaticResource OutlineButton}" Command="{Binding ContinueShoppingCommand}" />
+    </VerticalStackLayout>
+</ContentPage>

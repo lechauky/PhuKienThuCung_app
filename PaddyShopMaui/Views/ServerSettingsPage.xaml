@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PaddyShop.ViewModels"
+             x:Class="PaddyShop.Views.ServerSettingsPage"
+             x:DataType="vm:ServerSettingsViewModel"
+             Title="Cấu hình máy chủ">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="8">
+            <Label Text="Địa chỉ thư mục website (có chứa thư mục api/)" FontAttributes="Bold" />
+            <Border Style="{StaticResource InputBox}">
+                <Entry Text="{Binding Url}" Keyboard="Url" Placeholder="http://192.168.1.10/WebPhuKienThuCung/" />
+            </Border>
+            <Label Text="{Binding ResultMessage}" TextColor="{Binding ResultColor}"
+                   IsVisible="{Binding ResultMessage, Converter={StaticResource HasValue}}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,8,0,0">
+                <Grid>
+                    <Button Text="Kiểm tra" Style="{StaticResource OutlineButton}" Command="{Binding TestCommand}" IsEnabled="{Binding IsNotBusy}" />
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" HeightRequest="24" />
+                </Grid>
+                <Button Grid.Column="1" Text="Lưu" Command="{Binding SaveCommand}" />
+            </Grid>
+            <Button Text="Dùng địa chỉ mặc định" Style="{StaticResource TextButton}" Command="{Binding ResetDefaultCommand}" HorizontalOptions="Start" />
+
+            <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Hướng dẫn" FontAttributes="Bold" />
+                    <Label Text="• Android Emulator: dùng http://10.0.2.2/WebPhuKienThuCung/ (10.0.2.2 là máy tính đang chạy XAMPP)." />
+                    <Label Text="• Điện thoại thật: điện thoại và máy tính cùng mạng Wi-Fi, dùng IP LAN của máy tính (xem bằng lệnh ipconfig), vd. http://192.168.1.10/WebPhuKienThuCung/." />
+                    <Label Text="• Nếu Apache chạy cổng khác 80, thêm cổng vào địa chỉ, vd. http://10.0.2.2:8080/WebPhuKienThuCung/." />
+                    <Label Text="{Binding DefaultUrl, StringFormat='Mặc định: {0}'}" Style="{StaticResource Muted}" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

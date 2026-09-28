@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PaddyShop.ViewModels"
+             x:Class="PaddyShop.Views.LoginPage"
+             x:DataType="vm:LoginViewModel"
+             Title="Đăng nhập">
+    <ScrollView>
+        <VerticalStackLayout Padding="24,32" Spacing="6">
+            <Label Text="🐾" FontSize="64" HorizontalTextAlignment="Center" />
+            <Label Text="Chào mừng bạn trở lại" FontSize="22" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+            <Label Text="Đăng nhập bằng tài khoản website Paddy Pet Shop" Style="{StaticResource Muted}" HorizontalTextAlignment="Center" Margin="0,0,0,16" />
+
+            <Label Text="Tài khoản" Style="{StaticResource FieldLabel}" />
+            <Border Style="{StaticResource InputBox}">
+                <Entry Text="{Binding Username}" Placeholder="Tên đăng nhập" ReturnType="Next" />
+            </Border>
+
+            <Label Text="Mật khẩu" Style="{StaticResource FieldLabel}" />
+            <Border Style="{StaticResource InputBox}">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Entry Text="{Binding Password}" Placeholder="Mật khẩu" IsPassword="{Binding ShowPassword, Converter={StaticResource Not}}"
+                           ReturnType="Go" ReturnCommand="{Binding LoginCommand}" />
+                    <Button Grid.Column="1" Text="👁" BackgroundColor="Transparent" Padding="0" WidthRequest="40" FontSize="18"
+                            Command="{Binding TogglePasswordCommand}" />
+                </Grid>
+            </Border>
+
+            <Button Text="Quên mật khẩu?" Style="{StaticResource TextButton}" HorizontalOptions="End" Command="{Binding ForgotCommand}" />
+
+            <Label Text="{Binding ErrorMessage}" Style="{StaticResource ErrorText}" IsVisible="{Binding HasError}" HorizontalTextAlignment="Center" />
+
+            <Grid Margin="0,8,0,0">
+                <Button Text="Đăng nhập" Command="{Binding LoginCommand}" IsEnabled="{Binding IsNotBusy}" />
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="White" HeightRequest="24" />
+            </Grid>
+
+            <HorizontalStackLayout HorizontalOptions="Center" Margin="0,12,0,0">
+                <Label Text="Bạn chưa có tài khoản?" VerticalOptions="Center" />
+                <Button Text="Đăng ký ngay" Style="{StaticResource TextButton}" Command="{Binding RegisterCommand}" />
+            </HorizontalStackLayout>
+
+            <Button Text="⚙ Cấu hình máy chủ" Style="{StaticResource TextButton}" TextColor="{StaticResource Gray500}"
+                    HorizontalOptions="Center" Command="{Binding ServerCommand}" Margin="0,24,0,0" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

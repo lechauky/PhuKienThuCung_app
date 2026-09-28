@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PaddyShop.ViewModels"
+             x:Class="PaddyShop.Views.AccountPage"
+             x:DataType="vm:AccountViewModel"
+             Title="Tài khoản">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="10" Padding="0,0,0,24">
+            <!-- Đầu trang: khách chưa đăng nhập -->
+            <VerticalStackLayout IsVisible="{Binding Session.IsGuest}" BackgroundColor="{StaticResource Primary}" Padding="20,24" Spacing="10">
+                <Label Text="🐾 Paddy Pet Shop" TextColor="White" FontSize="20" FontAttributes="Bold" />
+                <Label Text="Đăng nhập để mua hàng, theo dõi đơn và nhận thông báo khuyến mãi." TextColor="White" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Button Text="Đăng nhập" BackgroundColor="White" TextColor="{StaticResource Primary}" Command="{Binding GoLoginCommand}" />
+                    <Button Grid.Column="1" Text="Đăng ký" BackgroundColor="Transparent" BorderColor="White" BorderWidth="1"
+                            Command="{Binding RegisterCommand}" />
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- Đầu trang: đã đăng nhập -->
+            <Grid IsVisible="{Binding Session.IsLoggedIn}" ColumnDefinitions="72,*" ColumnSpacing="14"
+                  BackgroundColor="{StaticResource Primary}" Padding="20,24">
+                <Border WidthRequest="72" HeightRequest="72" StrokeShape="RoundRectangle 36" StrokeThickness="2" Stroke="White" BackgroundColor="White">
+                    <Image Source="{Binding Session.Customer.AvatarUrl}" Aspect="AspectFill" />
+                </Border>
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                    <Label Text="{Binding Session.Customer.FullName}" TextColor="White" FontSize="19" FontAttributes="Bold" />
+                    <Label Text="{Binding Session.Customer.UsernameText}" TextColor="#E6FFFFFF" />
+                    <Label Text="{Binding Session.Customer.Phone}" TextColor="#E6FFFFFF" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Menu tài khoản -->
+            <Border IsVisible="{Binding Session.IsLoggedIn}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Margin="12,0">
+                <VerticalStackLayout Spacing="1" BackgroundColor="{StaticResource Gray100}">
+                    <Grid ColumnDefinitions="32,*,Auto" Padding="16,14" BackgroundColor="White">
+                        <Grid.GestureRecognizers><TapGestureRecognizer Command="{Binding EditProfileCommand}" /></Grid.GestureRecognizers>
+                        <Label Text="👤" /><Label Grid.Column="1" Text="Thông tin cá nhân" /><Label Grid.Column="2" Text="›" FontSize="18" />
+                    </Grid>
+                    <Grid ColumnDefinitions="32,*,Auto" Padding="16,14" BackgroundColor="White">
+                        <Grid.GestureRecognizers><TapGestureRecognizer Command="{Binding OrdersCommand}" /></Grid.GestureRecognizers>
+                        <Label Text="🧾" /><Label Grid.Column="1" Text="Đơn hàng của tôi" /><Label Grid.Column="2" Text="›" FontSize="18" />
+                    </Grid>
+                    <Grid ColumnDefinitions="32,*,Auto" Padding="16,14" BackgroundColor="White">
+                        <Grid.GestureRecognizers><TapGestureRecognizer Command="{Binding NotificationsCommand}" /></Grid.GestureRecognizers>
+                        <Label Text="🔔" /><Label Grid.Column="1" Text="Thông báo" />
+                        <HorizontalStackLayout Grid.Column="2" Spacing="8">
+                            <Border Style="{StaticResource Badge}" IsVisible="{Binding Session.HasUnread}" VerticalOptions="Center">
+                                <Label Text="{Binding Session.UnreadBadge}" TextColor="White" FontSize="11" FontAttributes="Bold" />
+                            </Border>
+                            <Label Text="›" FontSize="18" />
+                        </HorizontalStackLayout>
+                    </Grid>
+                    <Grid ColumnDefinitions="32,*,Auto" Padding="16,14" BackgroundColor="White">
+                        <Grid.GestureRecognizers><TapGestureRecognizer Command="{Binding ChangePasswordCommand}" /></Grid.GestureRecognizers>
+                        <Label Text="🔒" /><Label Grid.Column="1" Text="Đổi mật khẩu" /><Label Grid.Column="2" Text="›" FontSize="18" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Menu chung -->
+            <Border StrokeThickness="0" StrokeShape="RoundRectangle 12" Margin="12,0">
+                <VerticalStackLayout Spacing="1" BackgroundColor="{StaticResource Gray100}">
+                    <Grid ColumnDefinitions="32,*,Auto" Padding="16,14" BackgroundColor="White">
+                        <Grid.GestureRecognizers><TapGestureRecognizer Command="{Binding ContactCommand}" /></Grid.GestureRecognizers>
+                        <Label Text="☎" /><Label Grid.Column="1" Text="Liên hệ cửa hàng" /><Label Grid.Column="2" Text="›" FontSize="18" />
+                    </Grid>
+                    <Grid ColumnDefinitions="32,*,Auto" Padding="16,14" BackgroundColor="White">
+                        <Grid.GestureRecognizers><TapGestureRecognizer Command="{Binding ServerCommand}" /></Grid.GestureRecognizers>
+                        <Label Text="⚙" /><Label Grid.Column="1" Text="Cấu hình máy chủ" /><Label Grid.Column="2" Text="›" FontSize="18" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Button IsVisible="{Binding Session.IsLoggedIn}" Text="Đăng xuất" Style="{StaticResource OutlineButton}"
+                    Command="{Binding LogoutCommand}" Margin="12,8" />
+
+            <Label Text="{Binding VersionText}" Style="{StaticResource Muted}" HorizontalTextAlignment="Center" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

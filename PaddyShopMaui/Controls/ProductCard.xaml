@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Thẻ sản phẩm dùng chung (trang chủ, danh sách sản phẩm, sản phẩm cùng loại). BindingContext = Product -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:PaddyShop.Models"
+             x:Class="PaddyShop.Controls.ProductCard"
+             x:DataType="models:Product">
+    <Border Style="{StaticResource Card}" Padding="0" Margin="0,4">
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer Tapped="OnCardTapped" />
+        </Border.GestureRecognizers>
+        <Grid RowDefinitions="140,Auto,Auto,Auto" RowSpacing="2">
+            <Image Source="{Binding ImageUrl}" Aspect="AspectFit" Margin="8" />
+            <!-- nhãn giảm giá -->
+            <Border IsVisible="{Binding HasDiscount}" BackgroundColor="{StaticResource Secondary}" StrokeThickness="0"
+                    StrokeShape="RoundRectangle 12,0,0,8" Padding="6,2" HorizontalOptions="Start" VerticalOptions="Start">
+                <Label Text="{Binding DiscountLabel}" TextColor="White" FontAttributes="Bold" FontSize="12" />
+            </Border>
+            <!-- hết hàng -->
+            <Border IsVisible="{Binding OutOfStock}" BackgroundColor="#99000000" StrokeThickness="0"
+                    StrokeShape="RoundRectangle 6" Padding="10,4" HorizontalOptions="Center" VerticalOptions="Center">
+                <Label Text="Hết hàng" TextColor="White" />
+            </Border>
+
+            <Label Grid.Row="1" Text="{Binding BrandName}" TextColor="{StaticResource Blue}" FontSize="12"
+                   FontAttributes="Bold" Margin="10,0" LineBreakMode="TailTruncation" />
+            <Label Grid.Row="2" Text="{Binding Name}" FontSize="14" MaxLines="2" LineBreakMode="TailTruncation"
+                   HeightRequest="40" Margin="10,0" />
+            <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="10,2,8,10">
+                <VerticalStackLayout VerticalOptions="Center">
+                    <Label Text="{Binding FinalPriceText}" Style="{StaticResource Price}" FontSize="15" />
+                    <Label Text="{Binding PriceText}" Style="{StaticResource OldPrice}" IsVisible="{Binding HasDiscount}" />
+                </VerticalStackLayout>
+                <Button Grid.Column="1" Text="+" Style="{StaticResource RoundButton}" IsEnabled="{Binding InStock}"
+                        Clicked="OnAddClicked" VerticalOptions="End" />
+            </Grid>
+        </Grid>
+    </Border>
+</ContentView>
